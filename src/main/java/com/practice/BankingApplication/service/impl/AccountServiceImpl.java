@@ -6,10 +6,12 @@ import com.practice.BankingApplication.entity.dto.AccountResponse;
 import com.practice.BankingApplication.repository.AccountRepository;
 import com.practice.BankingApplication.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -45,6 +47,16 @@ public class AccountServiceImpl implements AccountService {
         account.setAccountBalance(newAmount);
         Account updatedAccount = accountRepository.save(account);
         return convertAccountEntityToAccountResponse(updatedAccount);
+
+    }
+
+    @Override
+    public List<AccountResponse> getAllAccounts(int pageSize, int pageNumber) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        Page<Account> allAccounts = accountRepository.findAll(pageRequest);
+        return allAccounts.getContent()
+                .stream()
+                .map(this::convertAccountEntityToAccountResponse).toList();
 
     }
 

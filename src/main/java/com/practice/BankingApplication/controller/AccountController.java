@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -56,6 +55,13 @@ public class AccountController {
 
 
         return new ResponseEntity<>(accountResponseList, HttpStatus.OK);
+    }
+
+    @GetMapping("/getAccounts")
+    public ResponseEntity<List<AccountResponse>> getAllAccounts(@RequestParam int pageSize, @RequestParam int pageNumber) {
+        List<AccountResponse> allAccounts = accountService.getAllAccounts(pageSize, pageNumber);
+        return new ResponseEntity<>(allAccounts, HttpStatus.OK);
+
     }
 
     @GetMapping("/getAccountById")
