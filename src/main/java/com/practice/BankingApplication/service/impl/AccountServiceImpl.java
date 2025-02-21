@@ -6,6 +6,9 @@ import com.practice.BankingApplication.entity.dto.AccountResponse;
 import com.practice.BankingApplication.repository.AccountRepository;
 import com.practice.BankingApplication.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
+    @Cacheable(value="account", key="#id")
     @Override
     public AccountResponse getAccountById(String id) {
         //TODO : handle error scenario also with custom exception
@@ -34,11 +38,13 @@ public class AccountServiceImpl implements AccountService {
         return convertAccountEntityToAccountResponse(accountEntity);
     }
 
+    @CacheEvict(value="account", key="#id")
     @Override
     public void deleteAccount(String id) {
         accountRepository.deleteById(id);
     }
 
+    @CachePut(value="account", key="#id")
     @Override
     public AccountResponse depositAmount(String id, double amount) {
         //TODO: Handle Exceptions
