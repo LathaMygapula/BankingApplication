@@ -17,13 +17,13 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    @Autowired private AccountRepository accountRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Override
     public AccountResponse addAccount(AccountRequest accountRequest) {
@@ -33,7 +33,7 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    @Cacheable(value="account", key="#id")
+    @Cacheable(value = "account", key = "#id")
     @Override
     public AccountResponse getAccountById(String id) {
         Account accountEntity = accountRepository.findById(id)
@@ -41,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
         return convertAccountEntityToAccountResponse(accountEntity);
     }
 
-    @CacheEvict(value="account", key="#id")
+    @CacheEvict(value = "account", key = "#id")
     @Override
     public void deleteAccount(String id) {
         accountRepository.findById(id)
@@ -49,11 +49,11 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.deleteById(id);
     }
 
-    @CachePut(value="account", key="#id")
+    @CachePut(value = "account", key = "#id")
     @Override
     public AccountResponse depositAmount(String id, double amount) {
         Optional<Account> optionalAccount = accountRepository.findById(id);
-        if(optionalAccount.isEmpty()) {
+        if (optionalAccount.isEmpty()) {
             throw new BankingApplicationException(BankingStatusEnum.NO_ACCOUNT_FOUND);
         }
         Account account = optionalAccount.get();
