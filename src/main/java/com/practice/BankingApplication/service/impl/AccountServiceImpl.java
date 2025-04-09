@@ -7,6 +7,7 @@ import com.practice.BankingApplication.enums.BankingStatusEnum;
 import com.practice.BankingApplication.exception.BankingApplicationException;
 import com.practice.BankingApplication.repository.AccountRepository;
 import com.practice.BankingApplication.service.AccountService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -18,15 +19,19 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
+@Log4j2
 public class AccountServiceImpl implements AccountService {
+    private static final Logger logger = Logger.getLogger(AccountServiceImpl.class.getName());
 
     @Autowired
     private AccountRepository accountRepository;
 
     @Override
     public AccountResponse addAccount(AccountRequest accountRequest) {
+        logger.info("account request - " + accountRequest);
         Account account = convertAccountRequestToAccountEntity(accountRequest);
         Account savedAccount = accountRepository.save(account);
         return convertAccountEntityToAccountResponse(savedAccount);
@@ -36,6 +41,7 @@ public class AccountServiceImpl implements AccountService {
     @Cacheable(value = "account", key = "#id")
     @Override
     public AccountResponse getAccountById(String id) {
+        logger.info("get account by id -> " + id);
         Account accountEntity = accountRepository.findById(id)
                 .orElseThrow(() -> new BankingApplicationException(BankingStatusEnum.NO_ACCOUNT_FOUND));
         return convertAccountEntityToAccountResponse(accountEntity);
@@ -44,6 +50,7 @@ public class AccountServiceImpl implements AccountService {
     @CacheEvict(value = "account", key = "#id")
     @Override
     public void deleteAccount(String id) {
+        logger.info("delete account by id -> " + id);
         accountRepository.findById(id)
                 .orElseThrow(() -> new BankingApplicationException(BankingStatusEnum.NO_ACCOUNT_FOUND));
         accountRepository.deleteById(id);
@@ -52,6 +59,7 @@ public class AccountServiceImpl implements AccountService {
     @CachePut(value = "account", key = "#id")
     @Override
     public AccountResponse depositAmount(String id, double amount) {
+        logger.info("deposit amount");
         Optional<Account> optionalAccount = accountRepository.findById(id);
         if (optionalAccount.isEmpty()) {
             throw new BankingApplicationException(BankingStatusEnum.NO_ACCOUNT_FOUND);
@@ -66,6 +74,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountResponse> getAllAccounts(int pageSize, int pageNumber) {
+        logger.info("Get all accounts. Page size - " + pageSize + ", Page Number - " + pageNumber);
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         Page<Account> allAccounts = accountRepository.findAll(pageRequest);
         return allAccounts.getContent()
